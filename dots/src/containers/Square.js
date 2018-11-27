@@ -14,6 +14,7 @@ const Square = ({ value }) => {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+      borderRadius: 3,
     }, filled]}>
       <Text>{value}</Text>
     </View>

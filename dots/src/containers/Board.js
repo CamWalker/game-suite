@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableWithoutFeedback, TouchableHighlight } from 'react-native';
 import { connect } from 'react-redux';
 import Line from './Line';
 import Square from './Square';
@@ -14,6 +14,9 @@ class Board extends React.Component {
   constructor(props) {
     super(props)
     props.startGame(props.boardWidth, props.boardHeight);
+    this.lineLength = boardWidthPx / (props.boardWidth * 2 + 1);
+    this.diagonalLineLength = Math.sqrt((this.lineLength * this.lineLength) * 2);
+    this.dotLength = (boardWidthPx - (this.diagonalLineLength * props.boardWidth)) / (props.boardWidth + 1)
   }
 
   pressLine = (horizontal, x, y) => {
@@ -37,6 +40,73 @@ class Board extends React.Component {
       boardHeight,
     } = this.props;
 
+    const touchableBoard = [];
+    for (var y = 0; y < (verticalLines.length * 2 + 1); y++) {
+      const row = [];
+      for (var x = 0; x < (verticalLines.length * 2 + 1); x++) {
+        if (y % 2 !== 0 && x % 2 === 0) {
+          row.push(
+            <TouchableHighlight
+              key={x}
+              onPress={() => console.log('v')}
+              style={{
+                transform: [
+                  {rotate: '45deg'},
+                ],
+                width: this.lineLength,
+                height: this.lineLength,
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: '#F00',
+                  width: this.lineLength,
+                  height: this.lineLength,
+                }}
+              />
+            </TouchableHighlight>
+          );
+        } else if (x % 2 !== 0 && y % 2 === 0) {
+          row.push(
+            <TouchableHighlight
+              key={x}
+              onPress={() => console.log('h')}
+              style={{
+                transform: [
+                  {rotate: '45deg'},
+                ],
+                width: this.lineLength,
+                height: this.lineLength,
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: '#0FF',
+                  width: this.lineLength,
+                  height: this.lineLength,
+                }}
+              />
+            </TouchableHighlight>
+          );
+        } else {
+          row.push(
+            <View
+              key={x}
+              style={{
+                transform: [
+                  {rotate: '45deg'},
+                ],
+                width: this.lineLength,
+                height: this.lineLength,
+              }}
+            />
+          );
+        }
+        
+      }
+      touchableBoard.push(<View key={y} style={styles.squareRow}>{row}</View>);
+    }
+
     const fullBoard = [];
     for (var y = 0; y < (verticalLines.length * 2 + 1); y++) {
       const row = [];
@@ -55,6 +125,7 @@ class Board extends React.Component {
                 onPress={this.pressLine}
                 horizontal
                 player={horizontalLines[hy][hx]}
+                lineLength={this.lineLength}
               />
             );
           }
@@ -79,6 +150,7 @@ class Board extends React.Component {
                 y={vy}
                 onPress={this.pressLine}
                 player={verticalLines[vy][vx]}
+                lineLength={this.lineLength}
               />
             );
           } else {
@@ -105,8 +177,8 @@ class Board extends React.Component {
 
     return(
       <View style={styles.container}>
-        <View style={styles.boardContainer}>
-          {fullBoard}
+        <View style={[styles.boardContainer, { zIndex: 5, position: 'absolute', bottom: 0 }]}>
+          {touchableBoard}
         </View>
       </View>
     )
@@ -129,18 +201,18 @@ const styles = StyleSheet.create({
   dotRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: 10,
+    height: 12,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: '#555',
   },
   squareRow: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
   },
 });
 
